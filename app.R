@@ -1,20 +1,25 @@
-library(shinydashboard)
+library(shiny)
+library(rio)
+#library(shinydashboard)
 library(ggplot2)
 library(plotly)
 library(dplyr)
-library(sf)
-library(RColorBrewer)
+library(stringr)
+#library(sf)
+#library(RColorBrewer)
 library(shinycssloaders)
 library(shinythemes)
-library(readxl)
+#library(readxl)
 library(DT)
-library(shinyWidgets) 
-library(writexl)
-library(shiny)
+#library(shinyWidgets) 
+#library(writexl)
+
 library(ggthemes)
-library(haven)
-library(stringr)
-library(rio)
+#library(haven)
+
+
+
+
 
 
 
@@ -24,34 +29,51 @@ ui <- fluidPage(
   # Define o tema
   theme = shinytheme("flatly"),
   
+  uiOutput("last_refreshed"),
+  
   # Define a barra de navegação
   navbarPage(
-    # Define o título da barra de navegação
+   
     title = "REALIZA" ,  
     id = "Paneles",
     tags$head(tags$style(HTML('.navbar-default {background-color: #76004B;}'))),
-    #title = "ASSOCIAÇÃO MUVA",
-    #BASELINE  
-    navbarMenu("OVERVIEW", icon=icon("exchange-alt"),
-               tabPanel(value = "tab1", title = "PARTICIPANTES",tabname="tab_overview_PARTICIPANTE", icon=icon("chart-line"),
+    
+    
+#Overview ==================================================================
+    navbarMenu("OVERVIEW", 
+               icon=icon("exchange-alt"),
+               tabPanel(
+                 title = "PARTICIPANTES",
+                 value = "overview-participantes",
+                 icon=icon("chart-line"),
                         # Define as colunas do layout de grade
-                        ui_totals("Totals")
+                 ui_participantes("Totals")
                         
                ), 
     
   
     ), # OVERVIEM
   
-##CRESÇA
+navbarMenu("C2",
+           tabPanel(
+             value = "cresca-participantes",
+             title = "PARTICIPANTES",
+             
+             ui_cresca_participantes("a")
+             
+           )
+           ),
+
+##CRESÇA ======================================================================
   navbarMenu("CRESÇA",
     tabPanel(value = "tab2", title = "PARTICIPANTES",
              # Define as colunas do layout de grade
              #ui_participacaoSGR("part_sgr")
-             
+  
              
              
              column(3,
-                    wellPanel(filtro_cresca),
+                    #wellPanel(filtro_cresca),
                     
              ),
              
@@ -105,7 +127,7 @@ ui <- fluidPage(
 
 
 
-##Movimenta
+##Movimenta ====================================================================
 navbarMenu("MOVIMENTA",
            tabPanel(value = "tabmovimenta_SGR", title = "PARTICIPANTES SGR",
                     # Define as colunas do layout de grade
@@ -115,7 +137,7 @@ navbarMenu("MOVIMENTA",
                     
                     # Define as colunas do layout de grade
                     column(3,
-                           wellPanel(filtro_movimenta)
+                           #wellPanel(filtro_movimenta)
                            
                     ),
                     
@@ -149,7 +171,7 @@ navbarMenu("MOVIMENTA",
            ), 
            tabPanel(value = "sessoes_sgr_fnm", title = "SESSÕES OBRIGATORIAS",
                     column(3,
-                           wellPanel(filtro_movimenta_obr),
+                           #wellPanel(filtro_movimenta_obr),
                     ),      
                     
                     column(9,uiOutput("texto_movimenta"),
@@ -175,44 +197,7 @@ navbarMenu("MOVIMENTA",
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##CONECTA
+##CONECTA =========================================================================
 navbarMenu("CONECTA",
            tabPanel(value = "tabconecta_participantes", title = "PARTICIPANTES",
                     
@@ -259,7 +244,7 @@ navbarMenu("CONECTA",
 )
   
    
-# Define o servidor
+# Define o servidor ============================================================
 server <- function(input, output, session) {
  
   
@@ -298,207 +283,214 @@ server <- function(input, output, session) {
   
   observe({
   
-  print(input$Paneles)
+  print(paste("Active tab: ", input$Paneles))
   activo <- input$Paneles
   
-  if(activo == "tab1") {
-    
-  serverTotals("Totals", dir_data)  
+  if(activo == "overview-participantes") {
   
-  } else if (activo == "tab2"){
+  serverParticipantes("Totals",  
+                      emprendedoras_lp = emprendedoras, all_presencas = all_presencas )  
+  } else if(activo == "cresca-participantes" ){
     
-  #serverParticipacaoSGR("part_sgr", dir_data, db_emprendedoras = emprendedoras, periodo = "Semana" )
- 
-    ### CRESCA PARTICIPANTE
-    
-    output$tab2_participante <- renderPlotly({
-      
-      
-     if(input$by_cresca=="Seu todo") {
-        
-       grafico_cresca_all
-       
-        
-      } else 
-       if(input$by_cresca=="por cidade") {
-        
-        grafico_cresca_cidade
-          
-        } 
-      
-    })
-     
-    
-  } else if (activo == "tab3"){
-  
-    output$cresca_sessoes_obrigatorias <- renderPlotly({
-      
-      grafico_cresca_Obr_all
-      
-    })
-    
-  
-  } else if (activo == "tab4"){
-    
-   
-    
-     #output$tabelacresca <- renderDataTable(tabelacresca) 
-      
-      output$tabelacresca = DT::renderDT({
-        tbl_cresca
-      },
-      extensions = 'Buttons',
-      options = list(
-        language = pt,
-        dom = 'Blfrtip',
-        buttons = list(
-          list(
-            extend = "excel",
-            text = "Download"
-          )
-        )
-      ))       
-      
-    
-  } else if (activo == "tabmovimenta_SGR"){
-    
-    
-    ### MOVIMENTA PARTICIPANTE
-    
-    output$movimenta_sgr <- renderPlotly({
-      
-      if(input$by_movimenta=="Seu todo") {
-        
-        grafico_movimenta_all
-        
-      } else 
-        if(input$by_movimenta=="por cidade") {
-          
-        grafico_movimenta_cidade
-          
-        } 
-    })
-    
-    
-  } else if (activo == "tabmovimenta_tabela"){
-    
-    
-    
-    #output$tabelacresca <- renderDataTable(tabelacresca) 
-    
-    output$tabelamovimenta = DT::renderDT({
-      tbl_movimenta
-    },
-    extensions = 'Buttons',
-    options = list(
-      language = pt,
-      dom = 'Blfrtip',
-      buttons = list(
-        list(
-          extend = "excel",
-          text = "Download"
-        )
-      )
-    ))     
-    
-    
-  } else if (activo == "tabconecta_tabela"){
-    
-    
-    
-    #output$tabelacresca <- renderDataTable(tabelacresca) 
-    
-    output$tabelaconecta = DT::renderDT({
-      tbl_conecta
-    },
-    extensions = 'Buttons',
-    options = list(
-      language = pt,
-      dom = 'Blfrtip',
-      buttons = list(
-        list(
-          extend = "excel",
-          text = "Download"
-        )
-      )
-    ))      
-    
-    
-  } else if (activo == "tabmovimenta_FNM"){
-    
-    
-    ### MOVIMENTA PARTICIPANTE
-    
-    output$movimenta_fnm <- renderPlotly({
-      
-      grafico_movimenta_participante_FNM
-      
-    })
-    
-    
-  }else if (activo == "sessoes_sgr_fnm"){
-    
-    
-    ### MOVIMENTA obrigatorio
-    
-    output$movimenta_sessoes_obrigatorias <- renderPlotly({
-      
-      if(input$by_movimenta_obr=="Seu todo") {
-        output$texto_movimenta <- renderText({
-          HTML("<h4>As empreendedoras da abordagem Movimenta devem participar de pelo menos 9 sessões de SGR e 15 sessões de FNM. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias.</h4>")
-        })
-        grafico_movimenta_Obr_all
-        
-      } else {
-        output$texto_movimenta <- renderText({
-          HTML("<h4>O gráfico em baixo mostra o número de empreendedoras que cumprem apenas o número de sessões obrigatórias de SGR e FNM.</h4>")
-        })
-        grafico_movimenta_Obr_abord
-          
-      }
-      
-      
-      
-    })
-    
-    
-  }else if (activo == "tabconecta_participantes"){
-    
-    
-    ### MOVIMENTA PARTICIPANTE
-    
-    output$conecta_participantes <- renderPlotly({
-      
-      grafico_conecta_all
-      
-    })
-    
-    
-  } else if (activo == "tabconecta_sessoes_obrigatorias"){
-    
-    
-    ### MOVIMENTA PARTICIPANTE
-    
-    output$conecta_sessoes_obrigatorias <- renderPlotly({
-      
-      grafico_conecta_Obr_all
-      
-    })
-    
-    
+    server_cresca_participantes("a", db_emprendedoras = emprendedoras, db_presencas = all_presencas)
   }
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   })
+  
+  # } else if (activo == "tab 2"){
+  #   
+  # #serverParticipacaoSGR("part_sgr", dir_data, db_emprendedoras = emprendedoras, periodo = "Semana" )
+  # 
+  #   ### CRESCA PARTICIPANTE
+  #   
+  #   output$tab2_participante <- renderPlotly({
+  #     
+  #     
+  #    if(input$by_cresca=="Seu todo") {
+  #       
+  #      grafico_cresca_all
+  #      
+  #       
+  #     } else 
+  #      if(input$by_cresca=="por cidade") {
+  #       
+  #       grafico_cresca_cidade
+  #         
+  #       } 
+  #     
+  #   })
+  #    
+  #   
+  # } else if (activo == "tab3"){
+  # 
+  #   output$cresca_sessoes_obrigatorias <- renderPlotly({
+  #     
+  #     grafico_cresca_Obr_all
+  #     
+  #   })
+  #   
+  # 
+  # } else if (activo == "tab4"){
+  #   
+  #  
+  #   
+  #    #output$tabelacresca <- renderDataTable(tabelacresca) 
+  #     
+  #     output$tabelacresca = DT::renderDT({
+  #       tbl_cresca
+  #     },
+  #     extensions = 'Buttons',
+  #     options = list(
+  #       language = pt,
+  #       dom = 'Blfrtip',
+  #       buttons = list(
+  #         list(
+  #           extend = "excel",
+  #           text = "Download"
+  #         )
+  #       )
+  #     ))       
+  #     
+  #   
+  # } else if (activo == "tabmovimenta_SGR"){
+  #   
+  #   
+  #   ### MOVIMENTA PARTICIPANTE
+  #   
+  #   output$movimenta_sgr <- renderPlotly({
+  #     
+  #     if(input$by_movimenta=="Seu todo") {
+  #       
+  #       grafico_movimenta_all
+  #       
+  #     } else 
+  #       if(input$by_movimenta=="por cidade") {
+  #         
+  #       grafico_movimenta_cidade
+  #         
+  #       } 
+  #   })
+  #   
+  #   
+  # } else if (activo == "tabmovimenta_tabela"){
+  #   
+  #   
+  #   
+  #   #output$tabelacresca <- renderDataTable(tabelacresca) 
+  #   
+  #   output$tabelamovimenta = DT::renderDT({
+  #     tbl_movimenta
+  #   },
+  #   extensions = 'Buttons',
+  #   options = list(
+  #     language = pt,
+  #     dom = 'Blfrtip',
+  #     buttons = list(
+  #       list(
+  #         extend = "excel",
+  #         text = "Download"
+  #       )
+  #     )
+  #   ))     
+  #   
+  #   
+  # } else if (activo == "tabconecta_tabela"){
+  #   
+  #   
+  #   
+  #   #output$tabelacresca <- renderDataTable(tabelacresca) 
+  #   
+  #   output$tabelaconecta = DT::renderDT({
+  #     tbl_conecta
+  #   },
+  #   extensions = 'Buttons',
+  #   options = list(
+  #     language = pt,
+  #     dom = 'Blfrtip',
+  #     buttons = list(
+  #       list(
+  #         extend = "excel",
+  #         text = "Download"
+  #       )
+  #     )
+  #   ))      
+  #   
+  #   
+  # } else if (activo == "tabmovimenta_FNM"){
+  #   
+  #   
+  #   ### MOVIMENTA PARTICIPANTE
+  #   
+  #   output$movimenta_fnm <- renderPlotly({
+  #     
+  #     grafico_movimenta_participante_FNM
+  #     
+  #   })
+  #   
+  #   
+  # }else if (activo == "sessoes_sgr_fnm"){
+  #   
+  #   
+  #   ### MOVIMENTA obrigatorio
+  #   
+  #   output$movimenta_sessoes_obrigatorias <- renderPlotly({
+  #     
+  #     if(input$by_movimenta_obr=="Seu todo") {
+  #       output$texto_movimenta <- renderText({
+  #         HTML("<h4>As empreendedoras da abordagem Movimenta devem participar de pelo menos 9 sessões de SGR e 15 sessões de FNM. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias.</h4>")
+  #       })
+  #       grafico_movimenta_Obr_all
+  #       
+  #     } else {
+  #       output$texto_movimenta <- renderText({
+  #         HTML("<h4>O gráfico em baixo mostra o número de empreendedoras que cumprem apenas o número de sessões obrigatórias de SGR e FNM.</h4>")
+  #       })
+  #       grafico_movimenta_Obr_abord
+  #         
+  #     }
+  #     
+  #     
+  #     
+  #   })
+  #   
+  #   
+  # }else if (activo == "tabconecta_participantes"){
+  #   
+  #   
+  #   ### MOVIMENTA PARTICIPANTE
+  #   
+  #   output$conecta_participantes <- renderPlotly({
+  #     
+  #     grafico_conecta_all
+  #     
+  #   })
+  #   
+  #   
+  # } else if (activo == "tabconecta_sessoes_obrigatorias"){
+  #   
+  #   
+  #   ### MOVIMENTA PARTICIPANTE
+  #   
+  #   output$conecta_sessoes_obrigatorias <- renderPlotly({
+  #     
+  #     grafico_conecta_Obr_all
+  #     
+  #   })
+  #   
+  #   
+  # }
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  
+  #})
 
     
   

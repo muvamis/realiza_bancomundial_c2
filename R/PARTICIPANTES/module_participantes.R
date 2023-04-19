@@ -11,7 +11,7 @@ selections <- setNames(
   
 )
 
-ui_totals <- function(id){
+ui_participantes <- function(id){
   
   
   tagList(
@@ -50,19 +50,23 @@ ui_totals <- function(id){
 }
 
 
-#Server ===================================================================
+
 
 #Server ======================================================================
-serverTotals<- function(id, dir_data) {
+serverParticipantes<- function(id, emprendedoras_lp, all_presencas) {
   moduleServer(id, function(input, output, session) {
     
-    
+#read data (all data is imported at the begining of app.R > server)-------------
     ## read look up of emprendedoras
-    emprendedoras <- import(file.path(dir_data,"0look_ups/emprendedoras.rds"))
-    presencas <- import(file.path(dir_data,"1.zoho/3.clean/all_presencas.rds")) %>%
+    emprendedoras <- emprendedoras_lp 
+    
+    #read all presencas
+    presencas <- all_presencas %>%
       filter(Status == "Presente")
     
-
+  
+#clean data --------------------------------------------------------------------
+    
     # all emprendedoras nas listas do banco mundial
     listas_BM <- emprendedoras %>%
       mutate(interesada = status_realiza == "CONFIRMADA",
@@ -104,54 +108,12 @@ serverTotals<- function(id, dir_data) {
                                         "Veio sessao inaugural"
                                         
                              )))
-    names(data_totais)      
     
-    # 
-    # ##identify emprendedoras that attended to the first session
-    # inaugural<-  presencas %>% 
-    #   filter(actividade =="Sessão Inaugural") %>%
-    #   select(ID_BM, Status)
-    # 
-    # 
-    # ##identify emprendedoras that attended to the primera sessao
-    # primera<- presencas %>%
-    #   group_by(ID_BM) %>%
-    #   #filter(data_posix == min(data_posix)) %>%
-    #   slice(1) %>%
-    #   ungroup() %>%
-    #   mutate(actividade = "Primera sessao") %>%
-    #   select(ID_BM, Status_primera = Status)
-    # 
-    # 
-    # 
-    # ## Join lookup of emprendedoras with peresencas of first session
-    # data_totais <- emprendedoras %>%
-    #   select(ID_BM, Cidade, 
-    #          Abordagem = grupo_accronym,
-    #          status_realiza) %>%
-    #   left_join(inaugural, by = "ID_BM") %>%
-    #   left_join(primera, by = "ID_BM") %>%
-    #   group_by(Abordagem, Cidade) %>%
-    #   ##Count total in WB data, Confirmadas, and those who attended the first session
-    #   summarise("Nas Listas BM" = n(),
-    #             `Interesadas em participar` = sum(status_realiza == "CONFIRMADA", na.rm = T),
-    #             `Tem participado` = sum(!is.na(Status_primera)),
-    #             `Veio sessao inaugural` = sum(!is.na(Status)),
-    #             
-    #             .groups = 'drop'
-    #   ) %>%
-    #   pivot_longer(-c(Abordagem, Cidade),
-    #                names_to = "Status") %>%
-    #   mutate(Status = factor(Status,
-    #                          levels = c("Nas Listas BM",
-    #                                     "Interesadas em participar",
-    #                                     "Tem participado",
-    #                                     "Veio sessao inaugural"
-    #                                    
-    #                          )))
+    #names(data_totais)      
     
+   
     
-    
+    #define status
     status_vector <-  c("Nas Listas BM",
                         "Interesadas em participar",
                         "Tem participado",
@@ -240,7 +202,8 @@ tags$ul(
     
     output$plot <- renderPlot({
       
-      print(names(data_plot()))
+      print(paste("Col names of data", names(data_plot())))
+      
       upper_limit = max(data_plot()$value)
       
       #if it is seu todo
@@ -322,7 +285,7 @@ tags$ul(
     
     observeEvent(input$by,{
       
-      print(input$by)
+      paste("Plot by: ",print(input$by))
       
     })
     
