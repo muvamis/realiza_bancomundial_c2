@@ -58,37 +58,44 @@ navbarMenu("C2",
            tabPanel(
              value = "cresca-participantes",
              title = "PARTICIPANTES",
-             
-             ui_cresca_participantes("a")
+             ui_participantes_SGR("cresca-participantes")
              
            )
            ),
+navbarMenu("M2",
+           tabPanel(
+             value = "movimenta-participantes",
+             title = "PARTICIPANTES SGR",
+             ui_participantes_SGR("movimenta-participantes")
+             
+           )
+),
 
 ##CRESÇA ======================================================================
   navbarMenu("CRESÇA",
-    tabPanel(value = "tab2", title = "PARTICIPANTES",
-             # Define as colunas do layout de grade
-             #ui_participacaoSGR("part_sgr")
-  
-             
-             
-             column(3,
-                    #wellPanel(filtro_cresca),
-                    
-             ),
-             
-             
-             column(9,h4("Número de mulheres que participaram de cada sessão. 
-                         A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
-                    mainPanel(
-                      withSpinner(plotlyOutput("tab2_participante",width="1000", height = "650px"), color = "black")
-                    ),
-             ),             
-             
-             
-             
-                      
-             ), 
+    # tabPanel(value = "tab2", title = "PARTICIPANTES",
+    #          # Define as colunas do layout de grade
+    #          #ui_participacaoSGR("part_sgr")
+    # 
+    #          
+    #          
+    #          column(3,
+    #                 #wellPanel(filtro_cresca),
+    #                 
+    #          ),
+    #          
+    #          
+    #          column(9,h4("Número de mulheres que participaram de cada sessão. 
+    #                      A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
+    #                 mainPanel(
+    #                   withSpinner(plotlyOutput("tab2_participante",width="1000", height = "650px"), color = "black")
+    #                 ),
+    #          ),             
+    #          
+    #          
+    #          
+    #                   
+    #          ), 
     tabPanel(value = "tab3", title = "SESSÕES OBRIGATORIAS",
                       
              # Define as colunas do layout de grade
@@ -289,10 +296,23 @@ server <- function(input, output, session) {
   if(activo == "overview-participantes") {
   
   serverParticipantes("Totals",  
-                      emprendedoras_lp = emprendedoras, all_presencas = all_presencas )  
+                      emprendedoras_lp = emprendedoras, 
+                      all_presencas = all_presencas )  
+    
   } else if(activo == "cresca-participantes" ){
     
-    server_cresca_participantes("a", db_emprendedoras = emprendedoras, db_presencas = all_presencas)
+    #created in R/Participantes/module_participantes_SGR.R
+    server_participantes_SGR(activo, 
+                             db_emprendedoras = emprendedoras, 
+                             db_presencas = all_presencas,
+                             grupo_modulo = "SGR")
+  } else if(activo == "movimenta-participantes" ){
+    
+    #created in R/Participantes/module_participantes_SGR.R
+    server_participantes_SGR(activo, 
+                             db_emprendedoras = emprendedoras, 
+                             db_presencas = all_presencas,
+                             grupo_modulo = "SGR + FNM")
   }
   
   })

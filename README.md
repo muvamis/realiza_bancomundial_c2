@@ -13,3 +13,35 @@ I created a folder for each module in R/. The idea is that making changes is eas
 
 The data is loaded only once at the begining of the app. Instead of loading it every time that a tab is active. 
 
+# Description of the architecture
+
+The dashboard has been coded using a modular approach. Which means that every page/tab of the dashboard is coded in its own module.
+
+To simplify the coding, all the code is divided in sub-directories:
+
+## 0.Utils-clean-data
+
+All the scripts that perform a data cleaning task. Within this folder is the **vectors-actividades** where the vector of the activities of FNM and SGR are defined.
+
+## 2. Themes
+
+All the scripts to define themes of the charts
+
+## 3. Plots
+
+All the scripts to produce plots.
+
+# Modules
+
+Each module is coded separately to avoid replication and to ease the process of making changes
+
+## PARTICIPANTES
+
+The code to create PARTICIPANTES SGR, FNM, etc. All the tabs that show the number of participantes to a given activity.
+
+
+
+
+
+
+

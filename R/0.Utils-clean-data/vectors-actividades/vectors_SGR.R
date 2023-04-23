@@ -1,8 +1,9 @@
 
 
 
-#Sgr activities
-order_activities_sgr <- c("1.1",
+#Vector with SGR activities
+
+activities_sgr <- c("1.1",
                           "Introducao a sessao de parceiros",
                           "1.2", "1.3",
                           "2.1", "2.2", "2.3",
@@ -15,3 +16,5 @@ order_activities_sgr <- c("1.1",
                           "Sessões de coaching 4"
                           
 )
+
+

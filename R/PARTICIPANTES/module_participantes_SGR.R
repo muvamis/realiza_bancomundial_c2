@@ -1,4 +1,4 @@
-ui_cresca_participantes <- function(id, periodo = "Semana"){
+ui_participantes_SGR <- function(id, periodo = "Semana"){
   
   
   
@@ -34,14 +34,15 @@ ui_cresca_participantes <- function(id, periodo = "Semana"){
 
 #server 
 
-server_cresca_participantes <- function(id, db_emprendedoras, db_presencas){
+server_participantes_SGR <- function(id, db_emprendedoras, db_presencas,
+                                     grupo_modulo = "SGR"){
   
   moduleServer(id, function(input, output, session){
     
     #Data for this module ----------------------------------------------------
     data_module <- presencas_de_grupo(presencas_db = db_presencas,
-                                      grupo = "SGR",
-                                      avoid_actividade = "Sessão Inaugural"
+                                      grupo = grupo_modulo,
+                                      avoid_actividade = activities_fnm
     ) %>% #function created in 0.Utils-clean-data
       
       #count_sessoes SGR
@@ -53,7 +54,7 @@ server_cresca_participantes <- function(id, db_emprendedoras, db_presencas){
                                  actividade
       ),
       actividade = factor(actividade,
-                          levels =order_activities_sgr , #vector created in 1.Order-vectors
+                          levels = activities_sgr , #vector created in 1.Order-vectors
                           ordered = T
       )) %>%
       ungroup()
@@ -88,8 +89,8 @@ server_cresca_participantes <- function(id, db_emprendedoras, db_presencas){
     #Create data that counts emprendedoras based on user selection
     num_emprendedoras <- reactive({
       
-      count_emprendedoras(emprendedoras_db = emprendedoras,
-                                            grupo = "SGR",
+      count_emprendedoras(emprendedoras_db = db_emprendedoras,
+                                            grupo = grupo_modulo,
                                             agrupar_por = input$by_cresca)
     })
     
