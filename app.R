@@ -33,102 +33,142 @@ ui <- fluidPage(
   
   # Define a barra de navegação
   navbarPage(
-   
+    
     title = "REALIZA" ,  
     id = "Paneles",
     tags$head(tags$style(HTML('.navbar-default {background-color: #76004B;}'))),
     
     
-#Overview ==================================================================
+    #Overview ==================================================================
     navbarMenu("OVERVIEW", 
                icon=icon("exchange-alt"),
                tabPanel(
                  title = "PARTICIPANTES",
                  value = "overview-participantes",
                  icon=icon("chart-line"),
-                        # Define as colunas do layout de grade
+                 # Define as colunas do layout de grade
                  ui_participantes("Totals")
-                        
+                 
                ), 
-    
-  
+               
+               
     ), # OVERVIEM
-  
-navbarMenu("C2",
-           tabPanel(
-             value = "cresca-participantes",
-             title = "PARTICIPANTES",
-             ui_participantes_SGR("cresca-participantes")
-             
-           )
-           ),
-navbarMenu("M2",
-           tabPanel(
-             value = "movimenta-participantes",
-             title = "PARTICIPANTES SGR",
-             ui_participantes_SGR("movimenta-participantes")
-             
-           )
-),
-
-##CRESÇA ======================================================================
-  navbarMenu("CRESÇA",
-    # tabPanel(value = "tab2", title = "PARTICIPANTES",
-    #          # Define as colunas do layout de grade
-    #          #ui_participacaoSGR("part_sgr")
-    # 
-    #          
-    #          
-    #          column(3,
-    #                 #wellPanel(filtro_cresca),
-    #                 
-    #          ),
-    #          
-    #          
-    #          column(9,h4("Número de mulheres que participaram de cada sessão. 
-    #                      A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
-    #                 mainPanel(
-    #                   withSpinner(plotlyOutput("tab2_participante",width="1000", height = "650px"), color = "black")
-    #                 ),
-    #          ),             
-    #          
-    #          
-    #          
-    #                   
-    #          ), 
-    tabPanel(value = "tab3", title = "SESSÕES OBRIGATORIAS",
-                      
-             # Define as colunas do layout de grade
-             
-             
-             #column(3,
-             #       wellPanel(),
-             #),
-             
-             
-             column(12,h4("As empreendedoras da abordagem Cresça devem participar de pelo menos 9 sessões de SGR. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias. 
-"),
-                    mainPanel(
-                      withSpinner(plotlyOutput("cresca_sessoes_obrigatorias",width="1000", height = "550px"), color = "black")
-                    ),
-             ),   
-             
-            
-             ), 
     
-    tabPanel(value = "tab4", title = "TABELA PARA SESSÕES OBRIGATORIAS",
-             
-             # Define as colunas do layout de grade
-             column(12,h4("As empreendedoras da abordagem Cresça devem participar de pelo menos xx sessões de SGR. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias. 
-"),
-                    mainPanel(
-                      withSpinner(dataTableOutput('tabelacresca'), color = "black")
-                    ),
-             ),             
-             
+    #CRESCA -----------------------------------------------------------------------
+    navbarMenu("C2",
+               tabPanel(
+                 value = "cresca-participantes",
+                 title = "PARTICIPANTES",
+                 ui_participantes_SGR("cresca-participantes")
+               ),
+               tabPanel(
+                 value = "cresca-chart-obrigatorias",
+                 title = "SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("cresca-chart-obrigatorias")
+               ),
+               tabPanel(
+                 value = "cresca-tabela-obrigatorias",
+                 title = "TABELA PARA SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("cresca-tabela-obrigatorias")
+               )
     ),
     
-  ), # CRESÇA 
+    #Movimenta --------------------------------------------------------------------
+    navbarMenu("M2",
+               tabPanel(
+                 value = "movimenta-participantes",
+                 title = "PARTICIPANTES SGR",
+                 ui_participantes_SGR("movimenta-participantes")
+                 
+               ),
+               tabPanel(
+                 value = "movimenta-chart-obrigatorias",
+                 title = "SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("movimenta-chart-obrigatorias")
+               ),
+               
+               tabPanel(
+                 value = "movimenta-tabela-obrigatorias",
+                 title = "TABELA PARA SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("movimenta-tabela-obrigatorias")
+               )
+    ),
+    
+    #Conecta -----------------------------------------------------------------------
+    
+    navbarMenu("CON2",
+               tabPanel(
+                 value = "conecta-chart-obrigatorias",
+                 title = "SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("conecta-chart-obrigatorias")
+               ),
+               
+               tabPanel(
+                 value = "conecta-tabela-obrigatorias",
+                 title = "TABELA PARA SESSÕES OBRIGATORIAS",
+                 ui_sessoes_obrigatorias("conecta-tabela-obrigatorias")
+               )
+    ),
+    
+    
+    ##CRESÇA ======================================================================
+    navbarMenu("CRESÇA",
+               # tabPanel(value = "tab2", title = "PARTICIPANTES",
+               #          # Define as colunas do layout de grade
+               #          #ui_participacaoSGR("part_sgr")
+               # 
+               #          
+               #          
+               #          column(3,
+               #                 #wellPanel(filtro_cresca),
+               #                 
+               #          ),
+               #          
+               #          
+               #          column(9,h4("Número de mulheres que participaram de cada sessão. 
+               #                      A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
+               #                 mainPanel(
+               #                   withSpinner(plotlyOutput("tab2_participante",width="1000", height = "650px"), color = "black")
+               #                 ),
+               #          ),             
+               #          
+               #          
+               #          
+               #                   
+               #          ), 
+               tabPanel(value = "tab3", title = "SESSÕES OBRIGATORIAS",
+                        
+                        # Define as colunas do layout de grade
+                        
+                        
+                        #column(3,
+                        #       wellPanel(),
+                        #),
+                        
+                        
+                        column(12,h4("As empreendedoras da abordagem Cresça devem participar de pelo menos 9 sessões de SGR. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias. 
+"),
+mainPanel(
+  withSpinner(plotlyOutput("cresca_sessoes_obrigatorias",width="1000", height = "550px"), color = "black")
+),
+                        ),   
+
+
+               ), 
+
+tabPanel(value = "tab4", title = "TABELA PARA SESSÕES OBRIGATORIAS",
+         
+         # Define as colunas do layout de grade
+         column(12,h4("As empreendedoras da abordagem Cresça devem participar de pelo menos xx sessões de SGR. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias. 
+"),
+mainPanel(
+  withSpinner(dataTableOutput('tabelacresca'), color = "black")
+),
+         ),             
+
+),
+
+    ), # CRESÇA 
 
 
 
@@ -151,16 +191,16 @@ navbarMenu("MOVIMENTA",
                     
                     column(9,h4("Número de mulheres que participaram de cada sessão. 
                          A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
-                           mainPanel(
-                             withSpinner(plotlyOutput("movimenta_sgr",width="1000", height = "650px"), color = "black")
-                           ),
+                         mainPanel(
+                           withSpinner(plotlyOutput("movimenta_sgr",width="1000", height = "650px"), color = "black")
+                         ),
                     ),             
                     
                     
            ), 
            tabPanel(value = "tabmovimenta_FNM", title = "PARTICIPANTES FNM",
                     
-                   
+                    
                     column(6,
                            wellPanel(h4("colocamos o outro grafico")),
                     ),
@@ -249,17 +289,13 @@ navbarMenu("CONECTA",
   )
 
 )
-  
-   
+
+
 # Define o servidor ============================================================
 server <- function(input, output, session) {
- 
   
-  
-  
-  
+  abordagems <- c("cresca", "movimenta", "conecta")  
   #define path to data (data is saved in repo)===========================
-  
   dir_master <- file.path(dirname(getwd()), "realiza_bancomundial")
   dir_data <- file.path(dir_master,"data")
   dir_lookups <- file.path(dir_data,"0look_ups") 
@@ -284,38 +320,71 @@ server <- function(input, output, session) {
     p(text)
   })
   
+  #Define tabs ----------------------------------------------------------------
+  #I am doing this to avoid copy and pasting servers and parameters
+  tabs_participantes <- paste0(abordagems, "-participantes")
   
+  tabs_obrigatorias <- c(
+    paste0(abordagems,"-tabela-obrigatorias"),
+    paste0(abordagems,"-chart-obrigatorias"))
+ 
   
 
+  #Activate servers
   
   observe({
-  
-  print(paste("Active tab: ", input$Paneles))
-  activo <- input$Paneles
-  
-  if(activo == "overview-participantes") {
-  
-  serverParticipantes("Totals",  
-                      emprendedoras_lp = emprendedoras, 
-                      all_presencas = all_presencas )  
+    activo <- input$Paneles
+    print(paste("Active tab: ", input$Paneles))
     
-  } else if(activo == "cresca-participantes" ){
+    #Server overview ===========================================================
+    if(activo == "overview-participantes") {
+      
+      serverParticipantes("Totals",
+                          emprendedoras_lp = emprendedoras,
+                          all_presencas = all_presencas )
+    }
     
-    #created in R/Participantes/module_participantes_SGR.R
-    server_participantes_SGR(activo, 
-                             db_emprendedoras = emprendedoras, 
-                             db_presencas = all_presencas,
-                             grupo_modulo = "SGR")
-  } else if(activo == "movimenta-participantes" ){
     
-    #created in R/Participantes/module_participantes_SGR.R
-    server_participantes_SGR(activo, 
-                             db_emprendedoras = emprendedoras, 
-                             db_presencas = all_presencas,
-                             grupo_modulo = "SGR + FNM")
-  }
+    #server participantes =======================================================
+    lapply(tabs_participantes, function(tab){
+      
+      activo <- input$Paneles
+      if(activo == tab){
+        #created in R/Participantes/module_participantes_SGR.R
+        server_participantes_SGR(activo,
+                                 db_emprendedoras = emprendedoras,
+                                 db_presencas = all_presencas,
+                                 grupo_modulo = identify_grupo(tab))
+      }
+      
+      
+    })
+    
+    #server sessoes obrigatorias ===============================================
+    lapply(tabs_obrigatorias, function(tab){
+      
+      if(activo == tab){
+        
+        server_sessoes_obrigatorias(activo,
+                                    db_emprendedoras = emprendedoras, 
+                                    db_presencas = all_presencas,
+                                    grupo_modulo = identify_grupo(tab),
+                                    mode = identify_mode(tab))
+      }
+      
+    })
+    
   
+    
+    
   })
+  
+  
+#     observe({
+# 
+#        
+# 
+#     })
   
   # } else if (activo == "tab 2"){
   #   
@@ -511,8 +580,11 @@ server <- function(input, output, session) {
   # 
   
   #})
-
+  
+  
+  
     
+  
   
 }
 # Execute o aplicativo Shiny

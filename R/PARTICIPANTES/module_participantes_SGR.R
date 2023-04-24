@@ -43,21 +43,16 @@ server_participantes_SGR <- function(id, db_emprendedoras, db_presencas,
     data_module <- presencas_de_grupo(presencas_db = db_presencas,
                                       grupo = grupo_modulo,
                                       avoid_actividade = activities_fnm
-    ) %>% #function created in 0.Utils-clean-data
-      
-      #count_sessoes SGR
-      arrange(Emprendedora, data_posix, actividade) %>%
-      group_by(Emprendedora, actividade) %>%
+    ) %>% 
       #artificially count sessoes de coaching
-      mutate(actividade = ifelse(actividade == "Sessões de coaching",
-                                 paste(actividade, row_number()),
-                                 actividade
-      ),
+      # function creted in R/0.Utils-clean-data
+      create_coaching() %>%
+      # sort actividades as they ocurred
+      mutate(
       actividade = factor(actividade,
                           levels = activities_sgr , #vector created in 1.Order-vectors
                           ordered = T
-      )) %>%
-      ungroup()
+      )) 
     
     
     #reactive data -------------------------------------------------------------
