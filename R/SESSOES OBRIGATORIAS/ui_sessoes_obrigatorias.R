@@ -14,14 +14,29 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
     
     br(),
     
-    #tabela
-    fluidRow(
+    sidebarLayout(
       
-      uiOutput(NS(id,"viz"))  
-      #DT::DTOutput(NS(id,"tabela"))
+      sidebarPanel(
+        
+        width = 2,
+        selectInput(NS(id,"quarter"), 
+                    label = "Período",
+                    choices = choices_periodo #defined in R/Utils-app/filtro periodo
+        )
+      ),
       
       
-    )
+      #Vizualisation (table or chart)
+      mainPanel(
+        downloadButton(NS(id,"boton")),
+        br(),
+        br(),
+        uiOutput(NS(id,"viz"))
+      )
+    
+      ),
+    
+    
     
     
   )
@@ -30,7 +45,7 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
 #Server ------------------------------------------------------------------------
 
 server_sessoes_obrigatorias <- function(id,
-                                               grupo_modulo = "SGR",
+                                               #grupo_modulo = "SGR",
                                                db_emprendedoras,
                                                db_presencas,
                                                mode = "table"
@@ -38,7 +53,9 @@ server_sessoes_obrigatorias <- function(id,
   
   moduleServer(id, function(input, output, session){
     
-    #parametros do modulo ======================================================
+    
+    grupo_modulo <- identify_grupo(id)
+#parametros do modulo ======================================================
     #os parametros mudan according to the group
     parametros <- reactive({
       #funciton created in R/1.Utils-app
@@ -64,7 +81,7 @@ server_sessoes_obrigatorias <- function(id,
     #data for the table
     data_tabela <- reactive({
       
-      presencas_de_grupo(presencas_db = db_presencas,
+     db <-  presencas_de_grupo(presencas_db = db_presencas,
                          grupo = grupo_modulo,
                          avoid_actividade = parametros()$avoid #reactive
       )  %>%
@@ -83,8 +100,19 @@ server_sessoes_obrigatorias <- function(id,
                                     obrigatorias_sgr = parametros()$obrigatorias_sgr,
                                     obrigatorias_fnm = parametros()$obrigatorias_fnm)
       
+     
+     #count assistencias de parceiros
+      if(str_detect(grupo_modulo, "SGR")){
+        
+        db_sgr <- asistencias_parceiros(path = "data/1.zoho/3.clean/sgr.rds") #function in R/0.utils-clean-data
+        db <- db %>% left_join(db_sgr, by = "Emprendedora")
+        
+      }
+      
+     db
       
     })
+    
     
     
     
@@ -114,6 +142,21 @@ server_sessoes_obrigatorias <- function(id,
       
     })
     
+    
+#Download data =================================================================
+    
+    #download data
+    
+    output$boton <- downloadHandler(
+      filename = function() {
+        paste('sessoesSGR-', Sys.Date(), '.csv', sep='')
+      },
+      content = function(con) {
+        write.csv(data_tabela(), con)
+      }
+    )
+    
+    
     #tabela ========================================================================
     if(mode == "table"){
       
@@ -124,14 +167,9 @@ server_sessoes_obrigatorias <- function(id,
         extensions = 'Buttons',
         options = list(
           language = "pt",
-          dom = 'Blfrtip',
-          buttons = list(
-            list(
-              extend = "excel",
-              text = "Download"
-            )
-          )
-        )
+          dom = 'Blfrtip'
+        ),
+        rownames= FALSE
         )#renderDT
         
       }) #renderUI
@@ -139,13 +177,14 @@ server_sessoes_obrigatorias <- function(id,
     } #mode table
     
     
+  
  #chart ========================================================================
     
     if(mode == "chart"){
       
       output$viz <- renderUI({
         
-        
+        fluidRow(
         renderPlotly({
         
             data_plot <- data_tabela() %>%
@@ -184,6 +223,7 @@ server_sessoes_obrigatorias <- function(id,
         
         plot
         }) #renderPlotly
+        ) #fluidRow
         
       }) #renderUI
       

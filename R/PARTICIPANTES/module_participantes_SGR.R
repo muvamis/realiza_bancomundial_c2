@@ -19,7 +19,7 @@ ui_participantes_SGR <- function(id, periodo = "Semana"){
       h4("Número de mulheres que participaram de cada sessão. 
          A linha preta indica o número de mulheres incluídas nas listas do Banco Mundial."),
       mainPanel(
-        withSpinner(plotlyOutput(NS(id,"plot"),width="1000", height = "650px"), color = "black")
+        withSpinner(plotlyOutput(NS(id,"plot"),width="1000", height = "550px"), color = "black")
       ),
     )
   
@@ -34,10 +34,12 @@ ui_participantes_SGR <- function(id, periodo = "Semana"){
 
 #server 
 
-server_participantes_SGR <- function(id, db_emprendedoras, db_presencas,
-                                     grupo_modulo = "SGR"){
+server_participantes_SGR <- function(id, db_emprendedoras, db_presencas
+                                    ){
   
   moduleServer(id, function(input, output, session){
+    
+    grupo_modulo <- identify_grupo(id)
     
     #Data for this module ----------------------------------------------------
     data_module <- presencas_de_grupo(presencas_db = db_presencas,
@@ -52,7 +54,10 @@ server_participantes_SGR <- function(id, db_emprendedoras, db_presencas,
       actividade = factor(actividade,
                           levels = activities_sgr , #vector created in 1.Order-vectors
                           ordered = T
-      )) 
+      ),
+      actividade = recode_sgr(actividade) #In 0.utils-clean-data/vectors-actividade/vectors_SGR
+      )
+      
     
     
     #reactive data -------------------------------------------------------------
@@ -76,6 +81,7 @@ server_participantes_SGR <- function(id, db_emprendedoras, db_presencas,
       data_plot <- data_module %>%
         group_by_at(grupo) %>%
         summarise(total = n(), .groups = 'drop')
+      
       
       
       

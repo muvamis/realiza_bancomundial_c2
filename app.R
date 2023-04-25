@@ -353,8 +353,9 @@ server <- function(input, output, session) {
         #created in R/Participantes/module_participantes_SGR.R
         server_participantes_SGR(activo,
                                  db_emprendedoras = emprendedoras,
-                                 db_presencas = all_presencas,
-                                 grupo_modulo = identify_grupo(tab))
+                                 db_presencas = all_presencas
+                                 #grupo_modulo = identify_grupo(tab)
+                                 )
       }
       
       
@@ -368,8 +369,9 @@ server <- function(input, output, session) {
         server_sessoes_obrigatorias(activo,
                                     db_emprendedoras = emprendedoras, 
                                     db_presencas = all_presencas,
-                                    grupo_modulo = identify_grupo(tab),
-                                    mode = identify_mode(tab))
+                                    #grupo_modulo = identify_grupo(tab)
+                                    mode = identify_mode(tab)
+                                    )
       }
       
     })
