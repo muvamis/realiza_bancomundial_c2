@@ -1,4 +1,4 @@
-ui_participantes_SGR <- function(id, periodo = "Semana"){
+ui_participantes_SGR <- function(id){
   
   
   
@@ -121,7 +121,8 @@ server_participantes_SGR <- function(id, db_emprendedoras, db_presencas
        
       }
       
-      plot
+      ggplotly(plot) %>%
+        config(displayModeBar = F)
       # if(input$by_cresca == "Por cidade"){
       # 
       

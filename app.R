@@ -81,6 +81,13 @@ ui <- fluidPage(
                  ui_participantes_SGR("movimenta-participantes")
                  
                ),
+               
+               tabPanel(
+                 value = 'movimenta-participantes-fnm',
+                 title= "PARTICIPANTES FNM",
+                 ui_participantes_FNM('movimenta-participantes-fnm')
+               ),
+               
                tabPanel(
                  value = "movimenta-chart-obrigatorias",
                  title = "SESSÕES OBRIGATORIAS",
@@ -97,6 +104,14 @@ ui <- fluidPage(
     #Conecta -----------------------------------------------------------------------
     
     navbarMenu("CON2",
+               
+               tabPanel(
+                 
+                 value = 'conecta-participantes-fnm',
+                 title= "PARTICIPANTES",
+                 ui_participantes_FNM('conecta-participantes-fnm')
+               ),
+               
                tabPanel(
                  value = "conecta-chart-obrigatorias",
                  title = "SESSÕES OBRIGATORIAS",
@@ -322,12 +337,13 @@ server <- function(input, output, session) {
   
   #Define tabs ----------------------------------------------------------------
   #I am doing this to avoid copy and pasting servers and parameters
-  tabs_participantes <- paste0(abordagems, "-participantes")
+  tabs_participantes_SGR <- paste0(abordagems, "-participantes")
   
   tabs_obrigatorias <- c(
     paste0(abordagems,"-tabela-obrigatorias"),
     paste0(abordagems,"-chart-obrigatorias"))
  
+  tabs_participantes_FNM <- paste0(abordagems, '-participantes-fnm')
   
 
   #Activate servers
@@ -345,8 +361,8 @@ server <- function(input, output, session) {
     }
     
     
-    #server participantes =======================================================
-    lapply(tabs_participantes, function(tab){
+    #server participantes SGR =======================================================
+    lapply(tabs_participantes_SGR, function(tab){
       
       activo <- input$Paneles
       if(activo == tab){
@@ -360,6 +376,7 @@ server <- function(input, output, session) {
       
       
     })
+    
     
     #server sessoes obrigatorias ===============================================
     lapply(tabs_obrigatorias, function(tab){
@@ -376,6 +393,21 @@ server <- function(input, output, session) {
       
     })
     
+    #server participantes FNM
+    lapply(tabs_participantes_FNM, function(tab){
+      
+      activo <- input$Paneles
+      if(activo == tab){
+        #created in R/Participantes/module_participantes_SGR.R
+        server_participantes_FNM(activo,
+                                 db_emprendedoras = emprendedoras,
+                                 db_presencas = all_presencas
+                                 #grupo_modulo = identify_grupo(tab)
+        )
+      }
+      
+      
+    })
   
     
     

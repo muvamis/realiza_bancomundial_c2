@@ -17,7 +17,7 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
     sidebarLayout(
       
       sidebarPanel(
-        
+        #filtro por periodo
         width = 2,
         selectInput(NS(id,"quarter"), 
                     label = "Período",
@@ -26,11 +26,14 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
       ),
       
       
-      #Vizualisation (table or chart)
+      #Vizualisation (tabela o grafico)
+      # Tabela is displayed in TABELA SESSOES OBLIGATORIAS
+      # Grafico is displayed in SESSOES OBRIGATORIAS
       mainPanel(
-        downloadButton(NS(id,"boton")),
+        downloadButton(NS(id,"boton"), label = "Baixar Dados"),
         br(),
         br(),
+        #this is the table or the grafico, depends on which page you are in
         uiOutput(NS(id,"viz"))
       )
     
@@ -53,13 +56,21 @@ server_sessoes_obrigatorias <- function(id,
   
   moduleServer(id, function(input, output, session){
     
+    #to work the id should contain any of "cresca", "movimenta", or "conecta"
     
-    grupo_modulo <- identify_grupo(id)
+    grupo_modulo <- identify_grupo(id) #function defined in 1.Utils-app
+
 #parametros do modulo ======================================================
     #os parametros mudan according to the group
     parametros <- reactive({
       #funciton created in R/1.Utils-app
-      #it returns all the parameters needed for this module
+      #it returns all the parameters needed for this module:
+      #' abordagem 
+      #' avoid: activities to avoid in the data
+      #' obrigatorias_sgr: sessoes obrigatorias de sgr
+      #' obrigatorias_fnm: sessoes obrigatorias de fnm
+      #' obrigatorias: numero de sessoes obrigatorias
+      
             parameters_grupos(grupo_modulo = grupo_modulo,
                         obrigatorias_sgr = 9,
                         obrigatorias_fnm = 15,
@@ -73,6 +84,8 @@ server_sessoes_obrigatorias <- function(id,
     #Create data that counts emprendedoras based on user selection
     num_emprendedoras <- reactive({
       
+      #this function is created in 0.Utils-clean-data
+      
       count_emprendedoras(emprendedoras_db = db_emprendedoras,
                           grupo = grupo_modulo,
                           agrupar_por = "Por cidade")
@@ -83,7 +96,7 @@ server_sessoes_obrigatorias <- function(id,
       
      db <-  presencas_de_grupo(presencas_db = db_presencas,
                          grupo = grupo_modulo,
-                         avoid_actividade = parametros()$avoid #reactive
+                         avoid_actividade = parametros()$avoid #reactive and created in parametros
       )  %>%
         
         #count_sessoes SGR (and crete sessoes de coaching 1, 2, 3)-----------------
