@@ -15,10 +15,15 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
     br(),
     
     sidebarLayout(
-      
+      #filtros
       sidebarPanel(
-        #filtro por periodo
+       
         width = 2,
+        
+        #filtro para mostrar so para Movimenta
+        uiOutput(NS(id,"ui_movimenta")),
+        
+        #filtro por periodo
         selectInput(NS(id,"quarter"), 
                     label = "Período",
                     choices = choices_periodo #defined in R/Utils-app/filtro periodo
@@ -59,7 +64,48 @@ server_sessoes_obrigatorias <- function(id,
     #to work the id should contain any of "cresca", "movimenta", or "conecta"
     
     grupo_modulo <- identify_grupo(id) #function defined in 1.Utils-app
+    
+    
+    
+#ui Movimenta ==================================================================
+    #Movimenta needs a filter to show ALL or by abordagem
+    # For the others is always all
+    
+    filtro_movimenta_chart <- grupo_modulo == "SGR + FNM" & mode == "chart"
+    
+    output$ui_movimenta <- renderUI({
+      
+      #Only enable if grupo is Movimenta and mode is chart
+      #filtro defined above
+      if(filtro_movimenta_chart)
+        
+        selectInput(NS(id,"Componente_movimenta"), 
+                    label = "Por componente",
+                    choices = c("All", "Por Componente") #defined in R/Utils-app/filtro periodo
+        )
+      
+    })
 
+    
+    #Define a reactive filtro because this filtro is only used for Movimenta
+    # so the filtro has to be created artificially for the others abordagems
+    # It is used to create a wrapped grafico
+    
+    by_componente <- reactive({
+      
+      #Only if grupo is Movimenta and mode is chart
+      #filtro defined above
+      if(filtro_movimenta_chart) {
+        
+        input$Componente_movimenta
+        
+      } else {
+        
+        "All"
+      }
+      
+    })
+    
 #parametros do modulo ======================================================
     #os parametros mudan according to the group
     parametros <- reactive({
@@ -94,9 +140,11 @@ server_sessoes_obrigatorias <- function(id,
     #data for the table
     data_tabela <- reactive({
       
+     
      db <-  presencas_de_grupo(presencas_db = db_presencas,
                          grupo = grupo_modulo,
-                         avoid_actividade = parametros()$avoid #reactive and created in parametros
+                         avoid_actividade = parametros()$avoid #reactive and created in parametros,
+                         #keep = c("Presente") #to count number of sessoes agendadas
       )  %>%
         
         #count_sessoes SGR (and crete sessoes de coaching 1, 2, 3)-----------------
@@ -107,6 +155,7 @@ server_sessoes_obrigatorias <- function(id,
         #check whether the emprendedoras have assisted to sessoes obrigarias
         #function created in R/0.Utils-clean-data/tabela_sessoes_obrigatorias.R
         #the result is a table with the number of sessoes obrigatorias by Emprendedoras
+       # actividade_grupo is a variable that identifies whether the activity is from sgr or from FNM
         tabela_sessoes_obrigatorias(.,
                                     grupo_modulo,
                                     by= c("ID_BM","Emprendedora","actividade_grupo","Cidade"),
@@ -121,7 +170,8 @@ server_sessoes_obrigatorias <- function(id,
         db <- db %>% left_join(db_sgr, by = "Emprendedora")
         
       }
-      
+    
+     print(names(db))
      db
       
     })
@@ -156,6 +206,9 @@ server_sessoes_obrigatorias <- function(id,
     })
     
     
+
+    
+    
 #Download data =================================================================
     
     #download data
@@ -172,6 +225,8 @@ server_sessoes_obrigatorias <- function(id,
     
     #tabela ========================================================================
     if(mode == "table"){
+      #
+      #print(input$by)
       
       output$viz <- renderUI({
         DT::renderDT({
@@ -200,6 +255,8 @@ server_sessoes_obrigatorias <- function(id,
         fluidRow(
         renderPlotly({
         
+          #Filter because Movimenta needs to have both (ALL and Por Componente)
+          if(by_componente() == "All" ) {
             data_plot <- data_tabela() %>%
               group_by(Cidade) %>%
               summarise(total = sum(cumple),.groups = 'drop')
@@ -208,33 +265,39 @@ server_sessoes_obrigatorias <- function(id,
             plot <- data_plot %>%
               #created in R/3.Plots/plot_obrigatorias.R
               plot_obrigatorias(.,num_emprendedoras())
+          }
           
+          #This is only for Movimenta 
+            if(by_componente() == "Por Componente" ){
+
+            data_plot <- data_tabela() %>%
+              group_by(Cidade) %>%
+              summarise(FNM = sum(cumple_fnm),
+                        SGR = sum(cumple_sgr),
+                        .groups = 'drop') %>%
+              pivot_longer(-Cidade,
+                           names_to = "grupo",
+                           values_to = "total"
+                           )
+
+            plot <- data_plot %>%
+              ggplot(aes(x = Cidade,
+                         y = total,
+                          fill = Cidade
+                         )) +
+              geom_col() +
+              labs(x = "")+
+              scale_fill_manual(values = palette) +
+              facet_wrap( ~ grupo) +
+              geom_point(data = num_emprendedoras()) +
+              theme_realiza()
+
+          }
           
-          # if(grupo_modulo == "SGR + FNM"){
-          #   
-          #   data_plot <- data_tabela() %>%
-          #     group_by(Cidade) %>%
-          #     summarise(`Sessoes fnm` = sum(cumple_fnm),
-          #               `Sessoes Sgr` = sum(cumple_sgr),
-          #               .groups = 'drop') %>%
-          #     pivot_longer(-Cidade,
-          #                  names_to = "grupo",
-          #                  values_to = "total"
-          #                  )
-          #   
-          #   plot <- data_plot %>%
-          #     ggplot(aes(x = Cidade,
-          #                y = total,
-          #                fill = grupo
-          #                )) +
-          #     geom_col() +
-          #     scale_fill_manual(values = palette) +
-          #     theme_realiza()
-          #   
-          # }
+        #plot as plotly 
           
-        
-        plot
+          ggplotly(plot) %>%
+            config(displayModeBar = F) #avoid selections on the top
         }) #renderPlotly
         ) #fluidRow
         

@@ -26,13 +26,15 @@ tabela_sessoes_obrigatorias <- function(.data,
                                         actividade %in% activities_fnm ~ column_FNM)) %>%
     #Count asistencias by emprendedora and the variables given in by
     group_by_at(c("ID_BM",by)) %>%
-    summarise(total_asistencias = n(),
+    summarise(total_asistencias = sum(Status == "Presente"),
+              total_agendadas = n(),
               .groups = 'drop'
     ) %>%
     #re-formatear tabela para poder ter uma columna independente do numero de actividades de SGR and FNM
     pivot_wider(id_cols = all_of(by),
                 names_from = actividade_grupo,
-                values_from = total_asistencias,
+                #values_from = c(total_asistencias, total_agendadas),
+                values_from = total_asistencias, 
                 values_fill = 0)
 
   #check that who has assisited to the sessoes obrigagorias
@@ -41,7 +43,7 @@ tabela_sessoes_obrigatorias <- function(.data,
 
     db <-
       db_by %>%
-      mutate(cumple = FNM >= obrigatorias_fnm)
+      mutate(cumple = .[column_FNM] >= obrigatorias_fnm)
 
   } else if( grupo_modulo == "SGR") {
 
@@ -58,6 +60,7 @@ tabela_sessoes_obrigatorias <- function(.data,
 
   }
 
+  
   return(db)
 
   
