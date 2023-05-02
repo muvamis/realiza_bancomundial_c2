@@ -3,9 +3,9 @@
 theme_realiza <- function(){
   
   theme(axis.ticks = element_blank(),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         axis.title.y = element_text(margin = margin(r = 40)),
-        axis.text = element_text(size = 12),
+        axis.text = element_text(size = 11),
         plot.background = element_blank(),
         panel.background = element_blank(),
         panel.grid.minor.y =  element_line(linetype = "dotted", color = "gray"),
