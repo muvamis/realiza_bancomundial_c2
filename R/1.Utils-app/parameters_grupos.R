@@ -1,8 +1,9 @@
 #'@return a list with parameters for the group:
-#' abordagem 
-#' avoid: activities to avoid in the data
-#' obrigatorias: numero de sessoes obrigatorias
-#' 
+#'@param grupo_modulo the grupo of the modulo (SGR, FNM, etc.)
+#'@param obrigatorias_sgr number of sessoes obrigatorias por mulher
+#''@param obrigatorias_fnm number of sessoes obrigatorias por mulher
+#' @param  avoid activities to avoid in the data
+
 
 parameters_grupos <- function(grupo_modulo,
                               obrigatorias_sgr = 9,

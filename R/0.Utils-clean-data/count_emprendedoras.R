@@ -12,11 +12,13 @@ count_emprendedoras <- function(emprendedoras_db,
                                 agrupar_por = c("Seu todo", "Por cidade")
 ){
   
+  #filter the data based on the parameter grupo given by the user
   data_function <- emprendedoras_db %>%
     filter(grupo_accronym %in% grupo)
   
   
   
+  #grouped data based on user paramenter agrupar_por
   if(agrupar_por == "Seu todo"){
     
     data_return = tibble(total = nrow(data_function))
@@ -28,6 +30,7 @@ count_emprendedoras <- function(emprendedoras_db,
       grupo_by = c('Cidade')
     }
     
+    #count the number of emprendedoras based on user paramenters
     data_return <- data_function %>%
       group_by_at(grupo_by) %>%
       summarise(total = n())

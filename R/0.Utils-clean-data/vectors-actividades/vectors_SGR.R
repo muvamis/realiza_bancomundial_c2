@@ -1,7 +1,11 @@
+#'@description Define the activities that belong to SGR and the labels that are
+#'to be used in their charts
+#' This vector is used many times in the code to:
+#' 1. identify activities that belong to SGR
+#' 2. Order activities 
+#' 3. Create labels for graphs
 
 
-
-#Vector with SGR activities
 
 activities_sgr <- c("1.1",
                           "Introducao a sessao de parceiros",

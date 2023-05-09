@@ -1,4 +1,4 @@
-#check that cumple with sessoes obrigatorias
+#' @description checks that an Emprendedora cumple with sessoes obrigatorias
 #' @returns A table used in TABELAS OBRIGATORIAS that includes the following columns:
 #' ID_BM, EMprendedora, Cidade, Numero Sessoes FNM, Numero Sessoes SGR, Sessoes Parceiro
 #' @param data clean data of presencas (ALL presencas)

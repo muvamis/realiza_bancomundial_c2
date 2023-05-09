@@ -216,6 +216,8 @@ server <- function(input, output, session) {
                                     db_emprendedoras = emprendedoras, 
                                     db_presencas = all_presencas,
                                     #grupo_modulo = identify_grupo(tab)
+                                    #identigy_mode() is created in 1.utils-app/identify_mode.R
+                                    #it identifies whether the id contains tabela or chart
                                     mode = identify_mode(tab)
                                     )
       }

@@ -26,6 +26,7 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
         #filtro por periodo
         selectInput(NS(id,"quarter"), 
                     label = "Período",
+                    #the choices for periodo are defined in 1.Utils-app/filtro_periodo.R
                     choices = choices_periodo #defined in R/Utils-app/filtro periodo
         )
       ),
@@ -62,7 +63,9 @@ server_sessoes_obrigatorias <- function(id,
   moduleServer(id, function(input, output, session){
     
     #to work the id should contain any of "cresca", "movimenta", or "conecta"
-    
+    #identify_grupo() is defined in 1.Utils-app/identify-grupo.R
+    #it detects the name of the grupo in the id of the module and returns a character
+    #with the name as it is in the data (FNM or SGR or FNM + SGR)
     grupo_modulo <- identify_grupo(id) #function defined in 1.Utils-app
     
     
@@ -130,8 +133,9 @@ server_sessoes_obrigatorias <- function(id,
     #Create data that counts emprendedoras based on user selection
     num_emprendedoras <- reactive({
       
-      #this function is created in 0.Utils-clean-data
       
+      #this function counts the number of emprendedoras registered in the programme
+      #See details in 0.utils-cleandata/count_emprendedoras.R
       count_emprendedoras(emprendedoras_db = db_emprendedoras,
                           grupo = grupo_modulo,
                           agrupar_por = "Por cidade")
@@ -139,7 +143,9 @@ server_sessoes_obrigatorias <- function(id,
     
     #data for the table
     data_tabela <- reactive({
-      
+      #presencas_de_grupo() is created un 0.utils-clean-data/presencas_de_grupo.R
+      #it keeps the data for the given grupo, removes certain actividades that are 
+      #not of interest for this analysis and keeps the given status.
      
      db <-  presencas_de_grupo(presencas_db = db_presencas,
                          grupo = grupo_modulo,
@@ -166,6 +172,8 @@ server_sessoes_obrigatorias <- function(id,
      #count assistencias de parceiros
       if(str_detect(grupo_modulo, "SGR")){
         
+        #the function asistencias parceiros takes the path and returns a data
+        #frame with the number of times that a parceiro attended by emprendedora
         db_sgr <- asistencias_parceiros(path = "data/1.zoho/3.clean/sgr.rds") #function in R/0.utils-clean-data
         db <- db %>% left_join(db_sgr, by = "Emprendedora")
         

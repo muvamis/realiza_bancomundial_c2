@@ -1,3 +1,10 @@
+#'@description Define the activities that belong to FNM and the labels that are
+#'to be used in their charts
+#' This vector is used many times in the code to:
+#' 1. identify activities that belong to FNM
+#' 2. Order activities 
+#' 3. Create labels for graphs
+
 
 #vector of activities-----------------------------------------------------------
 activities_fnm <- c(   "Sessão Inaugural" ,

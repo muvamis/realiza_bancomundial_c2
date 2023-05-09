@@ -9,6 +9,7 @@ ui_participantes_FNM <- function(id){
         width = 2,
         selectInput(NS(id,"periodo"), 
                     label = h4("Periodo"),
+                    #the choices for periodo are defined in 1.Utils-app/filtro_periodo.R
                     choices = choices_periodo)
         
         
@@ -56,11 +57,18 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
   
   moduleServer(id, function(input, output, session){
     
+    #identify_grupo() is defined in 1.Utils-app/identify-grupo.R
+    #it detects the name of the grupo in the id of the module and returns a character
+    #with the name as it is in the data (FNM or SGR or FNM + SGR)
     grupo_modulo <- identify_grupo(id)
     
     #Data for this module ===========================================================
+    #presencas_de_grupo() is created un 0.utils-clean-data/presencas_de_grupo.R
+    #it keeps the data for the given grupo, removes certain actividades that are 
+    #not of interest for this analysis and keeps the given status.
     data_module <- presencas_de_grupo(presencas_db = db_presencas,
                                       grupo = grupo_modulo,
+                                      #activities_sgr is created in 0.utils-clean-data/vector-actividades
                                       avoid_actividade = activities_sgr,
                                       keep = c("Presente", "Ausente", "Pendente")
     ) %>%
@@ -71,6 +79,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
                                 Emprendedora, Nome_do_evento),
         
         actividade = factor(actividade,
+                            #activities_fnm is created in 0.utils-clean-data/vector-actividades
                             levels= activities_fnm,
                             ordered = T),
         actividade =recode_fnm(actividade) 
