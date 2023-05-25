@@ -140,22 +140,24 @@ server <- function(input, output, session) {
   
   abordagems <- c("cresca", "movimenta", "conecta")  
   #define path to data (data is saved in repo)===========================
-  dir_master <- file.path(dirname(getwd()), "realiza_bancomundial")
-  dir_data <- file.path(dir_master,"data")
+  #data is saved in the realiza repo everytime that the admin updates it
+  dir_data <- "C:/repositaries/3.MUVA/realiza/data"
   dir_lookups <- file.path(dir_data,"0look_ups") 
   
-  emprendedoras <- import(file.path(dir_lookups,"emprendedoras.rds"))
   
-  ## gravar as base de dados.
-  all_presencas <- readRDS(paste(dir_master, "data/1.zoho/3.clean/all_presencas.rds", sep ="/"))
-  fnm_presenca <- readRDS(paste(dir_master, "data/1.zoho/3.clean/fnm.rds", sep ="/"))
-  sgr_presencas <- readRDS(paste(dir_master, "data/1.zoho/3.clean/sgr.rds", sep ="/"))
+  #read data --------------------------------------------------------------------
+  emprendedoras <- rio::import(file.path(dir_lookups,"emprendedoras.rds"))
+  
+  
+  all_presencas <- rio::import(file.path(dir_data, "2.clean_presencas.rds")) %>%
+    mutate(data_posix = lubridate::dmy(str_sub(data_evento, 1,11)))
+  
   
   emprendedoras_cresca=emprendedoras %>% dplyr::filter(grupo_accronym=="SGR")
-  #write_xlsx(all_presencas, paste(dir_master, "data/all_presencas.xlsx", sep ="/"))
   
   
-  last_refreshed <- rio::import(file.path(dir_data,"2.Dashboard/last_refreshed.rds"))
+  
+  last_refreshed <- rio::import(file.path(dir_data,"last_refreshed.rds"))
   
   output$last_refreshed <- renderUI({
     

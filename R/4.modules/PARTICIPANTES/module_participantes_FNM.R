@@ -92,7 +92,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       
       data_module %>%
         #keep only one record for each evento
-        group_by(actividade, Nome_do_evento, Data) %>%
+        group_by(actividade, Nome_do_evento, data_posix) %>%
         slice(1) %>%
         ungroup() %>%
         #count how many eventos of each actividade were conducted
