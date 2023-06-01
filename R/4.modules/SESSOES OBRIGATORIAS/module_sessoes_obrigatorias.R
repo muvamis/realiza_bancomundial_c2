@@ -174,7 +174,7 @@ server_sessoes_obrigatorias <- function(id,
         
         #the function asistencias parceiros takes the path and returns a data
         #frame with the number of times that a parceiro attended by emprendedora
-        db_sgr <- asistencias_parceiros(path = "data/1.zoho/3.clean/sgr.rds") #function in R/0.utils-clean-data
+        db_sgr <- asistencias_parceiros(db_presencas, grupo_modulo) #function in R/0.utils-clean-data
         db <- db %>% left_join(db_sgr, by = "Emprendedora")
         
       }

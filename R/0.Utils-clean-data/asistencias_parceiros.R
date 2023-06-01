@@ -3,10 +3,11 @@
 #'@returns a data frame. Each row is a emprendedora. And a column with the number
 #'of times that a parceiro attended.
 
-asistencias_parceiros <- function(path = "data/1.zoho/3.clean/sgr.rds" ){
+asistencias_parceiros <- function(.data, grupo){
   
-  import(path) %>%
+  .data %>%
+    dplyr::filter(grupo_accronym == grupo) %>%
     group_by(Emprendedora) %>%
-    summarise(`Parceiro participou` = sum(Status_parceiro == "Presente", na.rm = T),
+    summarise(`Parceiro participou` = sum(Parceiro == "Presente", na.rm = T),
               .groups = 'drop')
 }
