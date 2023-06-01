@@ -18,9 +18,11 @@ ui_participantes_FNM <- function(id){
       mainPanel(
         
         fluidRow(
-          h4("O Banco seleccionou 350 mulheres para participar da abordagem conecta. 
-         O gráfico abaixo mostra o numero de mulheres agendadas para as actividades 
-         e numero das mulheres que participaram das actividades. bla bla")
+          h4(
+            HTML("O Banco seleccionou 350 mulheres para participar da abordagem conecta. <br><br>
+             O gráfico da esquerda mostra o número de atividades realizadas e o da direita
+         o numero de mulheres agendadas e que participaram das actividades.")
+         )
          
         ),
         

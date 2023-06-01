@@ -55,7 +55,7 @@ ui <- fluidPage(
     ), # OVERVIEM
     
     #CRESCA -----------------------------------------------------------------------
-    navbarMenu("C2",
+    navbarMenu("Cresça",
                tabPanel(
                  value = "cresca-participantes",
                  title = "PARTICIPANTES",
@@ -74,7 +74,7 @@ ui <- fluidPage(
     ),
     
     #Movimenta --------------------------------------------------------------------
-    navbarMenu("M2",
+    navbarMenu("Movimenta",
                tabPanel(
                  value = "movimenta-participantes",
                  title = "PARTICIPANTES SGR",
@@ -103,7 +103,7 @@ ui <- fluidPage(
     
     #Conecta -----------------------------------------------------------------------
     
-    navbarMenu("CON2",
+    navbarMenu("Conecta",
                
                tabPanel(
                  
@@ -141,7 +141,25 @@ server <- function(input, output, session) {
   abordagems <- c("cresca", "movimenta", "conecta")  
   #define path to data (data is saved in repo)===========================
   #data is saved in the realiza repo everytime that the admin updates it
-  dir_data <- "C:/repositaries/3.MUVA/realiza/data"
+  
+  define_dir_data <- function(){
+    
+    sistema <- Sys.info()['sysname']
+    
+    if(sistema == "Windows"){
+      
+      dir_data <- "C:/repositaries/3.MUVA/realiza/data"
+    } else {
+      
+      dir_data <- '/srv/shiny-server/2023/realiza/data'
+      
+    }
+    
+    dir_data
+  }
+  
+  
+  dir_data <- define_dir_data()
   dir_lookups <- file.path(dir_data,"0look_ups") 
   
   

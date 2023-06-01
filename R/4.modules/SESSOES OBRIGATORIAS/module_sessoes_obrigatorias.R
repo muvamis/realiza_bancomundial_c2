@@ -207,9 +207,12 @@ server_sessoes_obrigatorias <- function(id,
       
       texto <- glue('As empreendedoras da abordagem {parametros()$abordagem} devem participar de pelo menos {obrigatorias}.
                    A tabela baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias.
+                   <br><br>
+                   <b>As bolinhas mostram o número de emprendedoras registradas.E as
+                   barras ou número que atendem às sessões obrigatórias. </b>
                     ')
       
-      h5(texto)
+      h5(HTML(texto))
       
     })
     
