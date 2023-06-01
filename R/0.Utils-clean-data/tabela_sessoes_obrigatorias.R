@@ -31,7 +31,7 @@ tabela_sessoes_obrigatorias <- function(.data,
               .groups = 'drop'
     ) %>%
     #re-formatear tabela para poder ter uma columna independente do numero de actividades de SGR and FNM
-    pivot_wider(id_cols = all_of(by),
+    pivot_wider(id_cols = c(Emprendedora, Cidade),
                 names_from = actividade_grupo,
                 #values_from = c(total_asistencias, total_agendadas),
                 values_from = total_asistencias, 
