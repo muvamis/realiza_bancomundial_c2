@@ -15,8 +15,8 @@ tabela_sessoes_obrigatorias <- function(.data,
                                         by = c("actividade_grupo","Cidade"),
                                         obrigatorias_sgr = 9,
                                         obrigatorias_fnm = 15,
-                                        column_SGR = "Sessões SGR",
-                                        column_FNM = "Sessões FNM"
+                                        column_SGR = "Sessoes SGR",
+                                        column_FNM = "Sessoes FNM"
                                         ){
   
 
