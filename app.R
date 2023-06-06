@@ -168,7 +168,19 @@ server <- function(input, output, session) {
   
   
   all_presencas <- rio::import(file.path(dir_data, "2.clean_presencas.rds")) %>%
-    mutate(data_posix = lubridate::dmy(str_sub(data_evento, 1,11)))
+    filter(Nome_do_evento != "") %>%
+    mutate(data_posix = lubridate::dmy(str_sub(data_evento, 1,11))) %>%
+   
+    mutate(date = dmy(str_sub(data_evento, 1,12)),
+           mes = lubridate::month(date),
+           #adjust mes
+           mes = mes - min(mes, na.rm = T) + 1
+           
+    )
+           
+    
+  
+  print(unique(all_presencas$date))
   
   
   emprendedoras_cresca=emprendedoras %>% dplyr::filter(grupo_accronym=="SGR")

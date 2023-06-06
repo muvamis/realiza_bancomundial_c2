@@ -133,6 +133,14 @@ server_participantes_SGR <- function(id, db_emprendedoras, db_presencas
        
       }
       
+      
+      #add text to the charts--------------------------------------------------
+      plot <- plot +
+        geom_text(aes(label = total),
+                  nudge_y = 5,
+                  size = 4
+                  )
+      
       ggplotly(plot) %>%
         config(displayModeBar = F)
       # if(input$by_cresca == "Por cidade"){

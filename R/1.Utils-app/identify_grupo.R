@@ -20,3 +20,23 @@ identify_grupo <- function(tab){
   
 }
 
+
+return_componente <- function(tab){
+  
+  if(str_detect(tab, "cresca")){
+    
+    grupo = "cresca"
+  } else if(str_detect(tab, "movimenta")){
+    
+    grupo = "movimenta"
+  } else if(str_detect(tab, "conecta")){
+    
+    grupo = "conecta"
+  }
+  
+  return(grupo)
+  
+}
+  
+  
+  

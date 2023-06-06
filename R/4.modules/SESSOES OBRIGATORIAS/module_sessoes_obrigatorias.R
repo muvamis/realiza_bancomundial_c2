@@ -24,10 +24,10 @@ ui_sessoes_obrigatorias<- function(id, mode = "tabela"){
         uiOutput(NS(id,"ui_movimenta")),
         
         #filtro por periodo
-        selectInput(NS(id,"quarter"), 
-                    label = "Período",
+        selectInput(NS(id,"mes"), 
+                    label = "Mes",
                     #the choices for periodo are defined in 1.Utils-app/filtro_periodo.R
-                    choices = choices_periodo #defined in R/Utils-app/filtro periodo
+                    choices = "ALL" #defined in R/Utils-app/filtro periodo
         )
       ),
       
@@ -68,11 +68,65 @@ server_sessoes_obrigatorias <- function(id,
     #with the name as it is in the data (FNM or SGR or FNM + SGR)
     grupo_modulo <- identify_grupo(id) #function defined in 1.Utils-app
     
+    #look up with the number of mandatory sessions by group
+    lkp_obligatorias <- import('data/lkp_obligatorias.csv')
     
     
-#ui Movimenta ==================================================================
-    #Movimenta needs a filter to show ALL or by abordagem
-    # For the others is always all
+    
+    
+    
+    #parametros do modulo ======================================================
+    #os parametros mudan according to the group
+    #funciton created in R/1.Utils-app
+    #it returns all the parameters needed for this module:
+    #' abordagem 
+    #' avoid: activities to avoid in the data
+    #' obrigatorias_sgr: sessoes obrigatorias de sgr
+    #' obrigatorias_fnm: sessoes obrigatorias de fnm
+    #' obrigatorias: numero de sessoes obrigatorias
+    parametros <- parameters_grupos(grupo_modulo = grupo_modulo,
+                        obrigatorias_sgr = 9,
+                        obrigatorias_fnm = 15,
+                        avoid = "")
+    
+    
+    
+    obligatorias <- reactive({
+      
+      sgr <- lkp_obligatorias$cresca[lkp_obligatorias$mes == input$mes]
+      
+      fnm <- lkp_obligatorias$conecta[lkp_obligatorias$mes == input$mes]
+      
+      list(sgr = sgr,
+           fnm = fnm)
+      
+    })
+    
+    
+    
+    
+    #define data for this modul0 ----------------------------------------------
+    #presencas_de_grupo() is created un 0.utils-clean-data/presencas_de_grupo.R
+    #it keeps the data for the given grupo, removes certain actividades that are 
+    #not of interest for this analysis and keeps the given status.
+    data_module <- presencas_de_grupo(presencas_db = db_presencas,
+                                      grupo = grupo_modulo,
+                                      avoid_actividade = parametros$avoid, #reactive and created in parametros,
+                                      keep = c("Presente") #to count number of sessoes agendadas
+    ) %>%
+      # function creted in R/0.Utils-clean-data
+      create_coaching() 
+    
+    
+    
+    
+    
+    
+
+#UI selectors===================================================================
+#ui Movimenta 
+#Movimenta needs a filter to show ALL or by abordagem
+# For the others is always all
     
     filtro_movimenta_chart <- grupo_modulo == "SGR + FNM" & mode == "chart"
     
@@ -108,26 +162,34 @@ server_sessoes_obrigatorias <- function(id,
       }
       
     })
+
     
-#parametros do modulo ======================================================
-    #os parametros mudan according to the group
-    parametros <- reactive({
-      #funciton created in R/1.Utils-app
-      #it returns all the parameters needed for this module:
-      #' abordagem 
-      #' avoid: activities to avoid in the data
-      #' obrigatorias_sgr: sessoes obrigatorias de sgr
-      #' obrigatorias_fnm: sessoes obrigatorias de fnm
-      #' obrigatorias: numero de sessoes obrigatorias
+    
+    
+    
+#update periodo ===============================================================
+    
+    observe({
+      x <- as.character(unique(data_module$mes))
       
-            parameters_grupos(grupo_modulo = grupo_modulo,
-                        obrigatorias_sgr = 9,
-                        obrigatorias_fnm = 15,
-                        avoid = "")
+      # Can use character(0) to remove all choices
+      if (is.null(x))
+        x <- character(0)
+      
+      # Can also set the label and select items
+      updateSelectInput(session, "mes",
+                        choices = c("All",x)
+      )
+                        
       
     })
+
     
-#data module ===============================================================
+    
+
+
+
+#data user ===============================================================
     
     
     #Create data that counts emprendedoras based on user selection
@@ -141,21 +203,29 @@ server_sessoes_obrigatorias <- function(id,
                           agrupar_por = "Por cidade")
     })
     
+    
+    
+    data_user <- reactive({
+      
+      if(input$mes == "All"){
+        
+        d <- data_module
+      } else {
+        
+        d <- data_module %>%
+          filter(between(mes, min(mes), input$mes))
+      }
+    })
+    
+
+#data componente ======================================================
+    
+    
+    
     #data for the table
     data_tabela <- reactive({
-      #presencas_de_grupo() is created un 0.utils-clean-data/presencas_de_grupo.R
-      #it keeps the data for the given grupo, removes certain actividades that are 
-      #not of interest for this analysis and keeps the given status.
-     
-     db <-  presencas_de_grupo(presencas_db = db_presencas,
-                         grupo = grupo_modulo,
-                         avoid_actividade = parametros()$avoid #reactive and created in parametros,
-                         #keep = c("Presente") #to count number of sessoes agendadas
-      )  %>%
-        
-        #count_sessoes SGR (and crete sessoes de coaching 1, 2, 3)-----------------
-      # function creted in R/0.Utils-clean-data
-      create_coaching()%>%
+      
+     db <-  data_user() %>%
         #identify whether activity is FNM or SGR
         #count sessoes by emprendedora and by sessoes obrigatorias of this grupo
         #check whether the emprendedoras have assisted to sessoes obrigarias
@@ -165,8 +235,8 @@ server_sessoes_obrigatorias <- function(id,
         tabela_sessoes_obrigatorias(.,
                                     grupo_modulo,
                                     by= c("ID_BM","Emprendedora","actividade_grupo","Cidade"),
-                                    obrigatorias_sgr = parametros()$obrigatorias_sgr,
-                                    obrigatorias_fnm = parametros()$obrigatorias_fnm)
+                                    obrigatorias_sgr = obligatorias()$sgr,
+                                    obrigatorias_fnm = obligatorias()$fnm)
       
      
      #count assistencias de parceiros
@@ -192,20 +262,29 @@ server_sessoes_obrigatorias <- function(id,
       
       if(grupo_modulo == "SGR"){
         
-        obrigatorias <- glue('{parametros()$obrigatorias_sgr} sessões de SGR')
+        obrigatorias <- glue('{obligatorias()$sgr} sessões de SGR')
         
         
         
       } else if (grupo_modulo == "FNM"){
         
-        obrigatorias <- glue('{parametros()$obrigatorias_fnm} sessões de FNM')
+        obrigatorias <- glue('{obligatorias()$fnm} sessões de FNM')
         
       } else if (grupo_modulo == "SGR + FNM"){
         
-        obrigatorias <- glue('{parametros()$obrigatorias_sgr} sessões de SGR e {parametros()$obrigatorias_fnm} sessões de FNM')
+        obrigatorias <- glue('{obligatorias()$sgr} sessões de SGR e {obligatorias()$fnm} sessões de FNM')
       }
       
-      texto <- glue('As empreendedoras da abordagem {parametros()$abordagem} devem participar de pelo menos {obrigatorias}.
+      if(input$mes == "All"){
+        
+        durante = 'No final do programa'
+      } else {
+        
+        durante = glue('No final do Mês {input$mes} ')
+      }
+      
+      texto <- glue('<b>{durante}</b>, as empreendedoras da abordagem {parametros$abordagem} devem participar de pelo menos {obrigatorias}.
+                    <br><br>
                    A tabela baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias.
                    <br><br>
                    <b>As bolinhas mostram o número de emprendedoras registradas.E as
@@ -294,9 +373,11 @@ server_sessoes_obrigatorias <- function(id,
             plot <- data_plot %>%
               ggplot(aes(x = Cidade,
                          y = total,
-                          fill = Cidade
+                          fill = Cidade,
+                         label = total
                          )) +
               geom_col() +
+              geom_text(vjust = 1) +
               labs(x = "")+
               scale_fill_manual(values = palette) +
               facet_wrap( ~ grupo) +
@@ -320,7 +401,7 @@ server_sessoes_obrigatorias <- function(id,
 }
 
 
-#create data for this module
+
 
 
 

@@ -7,10 +7,10 @@ ui_participantes_FNM <- function(id){
       
       sidebarPanel(
         width = 2,
-        selectInput(NS(id,"periodo"), 
+        selectInput(NS(id,"mes"), 
                     label = h4("Periodo"),
                     #the choices for periodo are defined in 1.Utils-app/filtro_periodo.R
-                    choices = choices_periodo)
+                    choices = "All")
         
         
       ),
@@ -64,6 +64,26 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
     #with the name as it is in the data (FNM or SGR or FNM + SGR)
     grupo_modulo <- identify_grupo(id)
     
+    start <- reactive({1})
+    
+    observe({
+      x <- start()
+      
+      y <- as.character(unique(data_module$mes))
+      
+      
+      # Can use character(0) to remove all choices
+      if (is.null(x))
+        x <- character(0)
+      
+      # Can also set the label and select items
+      updateSelectInput(session, "mes",
+                        choices = c("All",y)
+      )
+      
+      
+    })
+    
     #Data for this module ===========================================================
     #presencas_de_grupo() is created un 0.utils-clean-data/presencas_de_grupo.R
     #it keeps the data for the given grupo, removes certain actividades that are 
@@ -85,8 +105,15 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
                             levels= activities_fnm,
                             ordered = T),
         actividade =recode_fnm(actividade) 
-      )
+      ) %>%
+      #keep only events that have ocurred so far
+      group_by(Nome_do_evento, data_evento) %>%
+      mutate(happened = max(presente)) %>%
+      ungroup() %>%
+      filter(happened == 1)
     
+    print(unique(data_module$data_evento))
+    print(tabyl(data_module, happened))
     #reactive data actividades ==============================================================
     
     
@@ -112,9 +139,11 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       
       plot <- data_plot_actividades() %>%
         ggplot(aes(x = actividade,
-                   y = agendadas)) +
+                   y = agendadas,
+                   label = agendadas)) +
         geom_col(width = .7,
                  fill = palette[3]) +
+        geom_text()+
         labs(y = 'Numero de actividades',
              x = "") +
         theme_realiza() +
@@ -151,13 +180,19 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       plot <- data_plot_emprendedoras() %>%
         ggplot(aes(x = actividade,
                    y = total,
-                   fill = status)) +
+                   fill = status,
+                   label = total)) +
         geom_col(width = .7,
                  position = 'dodge2') +
         scale_fill_manual(values = palette) +
         labs(y = "Numero de Mulheres",
              x = ""
         ) +
+        geom_text(position = position_dodge(0.7),
+                  vjust = -1,
+                  size = 3
+                  )+
+        
         theme_realiza() +
         theme(axis.text.x = element_text(angle = 45))
       

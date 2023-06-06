@@ -8,6 +8,7 @@
 
 #vector of activities-----------------------------------------------------------
 activities_fnm <- c(   "Sessão Inaugural" ,
+                       "Sessões individuais",
                       "De mulher para mulher: Conecta!" ,
                       "Eventos de matchmaking" ,
                       "Eventos de networking" ,
@@ -15,7 +16,7 @@ activities_fnm <- c(   "Sessão Inaugural" ,
                       "Feira Financeira" ,
                       #"Modulos Obligatorios" ,
                     "Sessões de coaching",
-                      "Sessões individuais",
+                     
                       "Workshops temáticos" 
                      )
 
@@ -26,6 +27,7 @@ recode_fnm <- function(activities_fnm){
   
   recode(activities_fnm,  
          "Sessão Inaugural" = "Inaugural",
+         "Sessões individuais" = "Individuais",
           "De mulher para mulher: Conecta!" = "Conecta",
           "Eventos de matchmaking" = "Matchmaking",
           "Eventos de networking" = "Networking",
@@ -33,7 +35,7 @@ recode_fnm <- function(activities_fnm){
           "Feira Financeira" = "Feiras",
           "Modulos Obligatorios" = "Modulos",
           "Sessões de coaching" = "Coaching",
-          "Sessões individuais" = "Individuais",
+         
           "Workshops temáticos" = "Workshops"
           )
   
