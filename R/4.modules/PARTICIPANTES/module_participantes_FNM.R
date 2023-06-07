@@ -313,7 +313,10 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
                )
       
     }, rownames= FALSE,
-    options =list(language = fr)
+    options =list(
+      #pt is created in R/utils-app/language_DT.R
+      language = pt
+      )
     )
     
     

@@ -1,4 +1,4 @@
-fr <- list(
+pt <- list(
   sProcessing = "Tratamento em andamento...", sSearch = "Pesquisar&nbsp;:", 
   sLengthMenu = "Mostrar _MENU_ registros", 
   sInfo = "Mostrando _END_ de _TOTAL_ registros", 
