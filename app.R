@@ -138,27 +138,10 @@ ui <- fluidPage(
 # Define o servidor ============================================================
 server <- function(input, output, session) {
   
+  today <- Sys.Date()
   abordagems <- c("cresca", "movimenta", "conecta")  
-  #define path to data (data is saved in repo)===========================
+  #define path to data (data is saved in repo)
   #data is saved in the realiza repo everytime that the admin updates it
-  
-  define_dir_data <- function(){
-    
-    sistema <- Sys.info()['sysname']
-    
-    if(sistema == "Windows"){
-      
-      dir_data <- "C:/repositaries/3.MUVA/realiza/data"
-    } else {
-      
-      dir_data <- '/srv/shiny-server/2023/realiza/data'
-      
-    }
-    
-    dir_data
-  }
-  
-  
   dir_data <- define_dir_data()
   dir_lookups <- file.path(dir_data,"0look_ups") 
   
@@ -170,17 +153,19 @@ server <- function(input, output, session) {
   all_presencas <- rio::import(file.path(dir_data, "2.clean_presencas.rds")) %>%
     filter(Nome_do_evento != "") %>%
     mutate(data_posix = lubridate::dmy(str_sub(data_evento, 1,11))) %>%
-   
+   #create month
     mutate(date = dmy(str_sub(data_evento, 1,12)),
            mes = lubridate::month(date),
            #adjust mes
            mes = mes - min(mes, na.rm = T) + 1
            
-    )
+    ) %>%
+    #keep only events that have happened already
+    filter(date <= today)
            
     
   
-  print(unique(all_presencas$date))
+ 
   
   
   emprendedoras_cresca=emprendedoras %>% dplyr::filter(grupo_accronym=="SGR")
@@ -276,209 +261,7 @@ server <- function(input, output, session) {
     
   })
   
-  
-#     observe({
-# 
-#        
-# 
-#     })
-  
-  # } else if (activo == "tab 2"){
-  #   
-  # #serverParticipacaoSGR("part_sgr", dir_data, db_emprendedoras = emprendedoras, periodo = "Semana" )
-  # 
-  #   ### CRESCA PARTICIPANTE
-  #   
-  #   output$tab2_participante <- renderPlotly({
-  #     
-  #     
-  #    if(input$by_cresca=="Seu todo") {
-  #       
-  #      grafico_cresca_all
-  #      
-  #       
-  #     } else 
-  #      if(input$by_cresca=="por cidade") {
-  #       
-  #       grafico_cresca_cidade
-  #         
-  #       } 
-  #     
-  #   })
-  #    
-  #   
-  # } else if (activo == "tab3"){
-  # 
-  #   output$cresca_sessoes_obrigatorias <- renderPlotly({
-  #     
-  #     grafico_cresca_Obr_all
-  #     
-  #   })
-  #   
-  # 
-  # } else if (activo == "tab4"){
-  #   
-  #  
-  #   
-  #    #output$tabelacresca <- renderDataTable(tabelacresca) 
-  #     
-  #     output$tabelacresca = DT::renderDT({
-  #       tbl_cresca
-  #     },
-  #     extensions = 'Buttons',
-  #     options = list(
-  #       language = pt,
-  #       dom = 'Blfrtip',
-  #       buttons = list(
-  #         list(
-  #           extend = "excel",
-  #           text = "Download"
-  #         )
-  #       )
-  #     ))       
-  #     
-  #   
-  # } else if (activo == "tabmovimenta_SGR"){
-  #   
-  #   
-  #   ### MOVIMENTA PARTICIPANTE
-  #   
-  #   output$movimenta_sgr <- renderPlotly({
-  #     
-  #     if(input$by_movimenta=="Seu todo") {
-  #       
-  #       grafico_movimenta_all
-  #       
-  #     } else 
-  #       if(input$by_movimenta=="por cidade") {
-  #         
-  #       grafico_movimenta_cidade
-  #         
-  #       } 
-  #   })
-  #   
-  #   
-  # } else if (activo == "tabmovimenta_tabela"){
-  #   
-  #   
-  #   
-  #   #output$tabelacresca <- renderDataTable(tabelacresca) 
-  #   
-  #   output$tabelamovimenta = DT::renderDT({
-  #     tbl_movimenta
-  #   },
-  #   extensions = 'Buttons',
-  #   options = list(
-  #     language = pt,
-  #     dom = 'Blfrtip',
-  #     buttons = list(
-  #       list(
-  #         extend = "excel",
-  #         text = "Download"
-  #       )
-  #     )
-  #   ))     
-  #   
-  #   
-  # } else if (activo == "tabconecta_tabela"){
-  #   
-  #   
-  #   
-  #   #output$tabelacresca <- renderDataTable(tabelacresca) 
-  #   
-  #   output$tabelaconecta = DT::renderDT({
-  #     tbl_conecta
-  #   },
-  #   extensions = 'Buttons',
-  #   options = list(
-  #     language = pt,
-  #     dom = 'Blfrtip',
-  #     buttons = list(
-  #       list(
-  #         extend = "excel",
-  #         text = "Download"
-  #       )
-  #     )
-  #   ))      
-  #   
-  #   
-  # } else if (activo == "tabmovimenta_FNM"){
-  #   
-  #   
-  #   ### MOVIMENTA PARTICIPANTE
-  #   
-  #   output$movimenta_fnm <- renderPlotly({
-  #     
-  #     grafico_movimenta_participante_FNM
-  #     
-  #   })
-  #   
-  #   
-  # }else if (activo == "sessoes_sgr_fnm"){
-  #   
-  #   
-  #   ### MOVIMENTA obrigatorio
-  #   
-  #   output$movimenta_sessoes_obrigatorias <- renderPlotly({
-  #     
-  #     if(input$by_movimenta_obr=="Seu todo") {
-  #       output$texto_movimenta <- renderText({
-  #         HTML("<h4>As empreendedoras da abordagem Movimenta devem participar de pelo menos 9 sessões de SGR e 15 sessões de FNM. O gráfico em baixo mostra o número de empreendedoras que cumprem o número de sessões obrigatórias.</h4>")
-  #       })
-  #       grafico_movimenta_Obr_all
-  #       
-  #     } else {
-  #       output$texto_movimenta <- renderText({
-  #         HTML("<h4>O gráfico em baixo mostra o número de empreendedoras que cumprem apenas o número de sessões obrigatórias de SGR e FNM.</h4>")
-  #       })
-  #       grafico_movimenta_Obr_abord
-  #         
-  #     }
-  #     
-  #     
-  #     
-  #   })
-  #   
-  #   
-  # }else if (activo == "tabconecta_participantes"){
-  #   
-  #   
-  #   ### MOVIMENTA PARTICIPANTE
-  #   
-  #   output$conecta_participantes <- renderPlotly({
-  #     
-  #     grafico_conecta_all
-  #     
-  #   })
-  #   
-  #   
-  # } else if (activo == "tabconecta_sessoes_obrigatorias"){
-  #   
-  #   
-  #   ### MOVIMENTA PARTICIPANTE
-  #   
-  #   output$conecta_sessoes_obrigatorias <- renderPlotly({
-  #     
-  #     grafico_conecta_Obr_all
-  #     
-  #   })
-  #   
-  #   
-  # }
-  # 
-  # 
-  # 
-  # 
-  # 
-  # 
-  # 
-  # 
-  # 
-  # 
-  
-  #})
-  
-  
+ 
   
     
   
