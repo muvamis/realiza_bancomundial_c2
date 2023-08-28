@@ -227,7 +227,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       
       
       plot <- data_plot_actividades() %>%
-        filter(actividade != "Individuais") %>%
+        #filter(actividade != "Individuais") %>%
         ggplot(aes(x = actividade,
                    y = agendadas,
                    label = agendadas)) +
@@ -302,7 +302,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
     output$table <- DT::renderDataTable({
      
       data_period() %>%
-        filter(actividade != "Individuais") %>%
+        #filter(actividade != "Individuais") %>%
         group_by(Cidade,data_evento, actividade, Nome_do_evento) %>%
         summarise(Agendadas = sum(agendada),
                   Presentes = sum(presente),
