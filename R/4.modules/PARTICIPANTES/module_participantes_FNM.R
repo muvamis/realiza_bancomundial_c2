@@ -227,7 +227,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       
       
       plot <- data_plot_actividades() %>%
-        #filter(actividade != "Individuais") %>%
+        filter(actividade != "Individuais") %>%
         ggplot(aes(x = actividade,
                    y = agendadas,
                    label = agendadas)) +
