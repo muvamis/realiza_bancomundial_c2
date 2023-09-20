@@ -13,7 +13,7 @@ library(shinythemes)
 library(DT)
 #library(shinyWidgets) 
 #library(writexl)
-
+library(writexl)
 library(ggthemes)
 #library(haven)
 
@@ -30,6 +30,28 @@ ui <- fluidPage(
   theme = shinytheme("flatly"),
   
   uiOutput("last_refreshed"),
+  
+  
+  tags$head(tags$style(HTML("
+  
+  .js-plotly-plot .plotly .modebar-btn {
+    position: relative;
+    font-size: 30px !important;
+    padding: 3px 4px;
+    height: 22px;
+    cursor: pointer;
+    line-height: normal;
+    box-sizing: border-box;
+}
+.js-plotly-plot .plotly .modebar-btn svg {
+    position: relative;
+    top: -30px !important;
+}
+.plotlyjsicon{
+display:none;
+}
+"))),
+  
   
   # Define a barra de navegação
   navbarPage(

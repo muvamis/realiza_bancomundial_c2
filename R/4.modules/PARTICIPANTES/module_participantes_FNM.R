@@ -56,7 +56,9 @@ ui_participantes_FNM <- function(id){
           ),
         br(),
         fluidRow(
-          
+          downloadButton(NS(id,"boton"), label = "Baixar Dados"),
+          br(),
+          br(),
           DT::DTOutput(NS(id, 'table'))
         )
       )
@@ -298,6 +300,24 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
       
     })
     
+    
+    output$boton <- downloadHandler(
+      filename = function() {
+        paste('sessoesSGR-', Sys.Date(), '.xlsx', sep='')
+      },
+      content = function(con) {
+        write_xlsx(data_period() %>%
+                     #filter(actividade != "Individuais") %>%
+                     group_by(Cidade,data_evento, actividade, Nome_do_evento) %>%
+                     summarise(Agendadas = sum(agendada),
+                               Presentes = sum(presente),
+                               .groups = 'drop') %>%
+                     rename(`Data evento` = data_evento,
+                            `Evento` = actividade,
+                            `Nome do evento` = Nome_do_evento
+                     ), con)
+      }
+    )
     #table
     output$table <- DT::renderDataTable({
      
@@ -316,7 +336,7 @@ server_participantes_FNM <- function(id, db_emprendedoras, db_presencas
     options =list(
       #pt is created in R/utils-app/language_DT.R
       language = pt
-      )
+      ),
     )
     
     
